@@ -1,44 +1,68 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## About
 
-## Available Scripts
+This project demonstrates the use of Electron in conjunction with a React app created through CRA typescript template. The objective is to have a desktop version of a CRA app, which could be configured to have both online and offline capabilities in the long run (though I'm not going to demonstrate how to enable this behaviour in this example).
 
-In the project directory, you can run:
+I'll opt for a single instance app, but that's easily configurable by removing the lines related to it.
 
-### `yarn start`
+## Global Dependencies
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+This project requires [Node](https://nodejs.org/en/download/package-manager) and [Yarn](https://yarnpkg.com/en/docs/install) installed in your system.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+I use [Visual Studio Code](https://code.visualstudio.com) as my preferred code editor.
 
-### `yarn test`
+## Clone and Preview
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+In a terminal, clone the project and access its root folder:
 
-### `yarn build`
+```
+git clone https://github.com/jobsonita/test-electron-react-cra-integration.git
+cd test-electron-react-cra-integration
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+At the root of the project, run:
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+```
+yarn
+yarn start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+With a second terminal at the root of the project, run:
 
-### `yarn eject`
+```
+yarn start-electron
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Build and Install
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+With a terminal open at the root of the project, run:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+`Unix`:
+```
+yarn package
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+`Windows`:
+```
+yarn package-win
+```
 
-## Learn More
+Open the generated dist folder and look for the installer for your system (.exe for Windows, .deb for Linux/Ubuntu, .dmg for MacOS).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Steps to reproduce this project
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+This project uses these articles as references:
+- [Building a production electron/create-react-app application with shared code using electron-builder](https://medium.com/@johndyer24/building-a-production-electron-create-react-app-application-with-shared-code-using-electron-builder-c1f70f0e2649)
+- [Desktop application with Electron & React (CRA)](https://dev.to/iampikai/desktop-application-with-electron-react-cra-3ooi)
+
+Follow the steps below to reproduce the creation of this app:
+
+```
+yarn create react-app test-electron-react-cra-integration --template typescript
+```
+
+Access the folder and open the project in VS Code:
+
+```
+cd test-electron-react-cra-integration
+code .
+```
