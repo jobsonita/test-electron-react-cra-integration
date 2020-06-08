@@ -2,6 +2,7 @@
   "name": "test-electron-react-cra-integration",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -16,10 +17,10 @@
     "typescript": "~3.7.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env BROWSER=none react-scripts start",
+    "start-electron": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build-electron": "copyfiles --all \"electron/**/*\" build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -35,5 +36,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "copyfiles": "^2.3.0",
+    "cross-env": "^7.0.2",
+    "electron": "^9.0.3"
   }
 }
