@@ -1,10 +1,16 @@
-const { app, BrowserWindow, globalShortcut } = require('electron')
+const { app, BrowserWindow } = require('electron')
 
 const path = require('path')
 const url = require('url')
 
 /** @type {BrowserWindow} */
-let win
+let mainWindow
+
+const singleInstanceLock = app.requestSingleInstanceLock()
+
+if (!singleInstanceLock) {
+  app.quit()
+}
 
 function createWindow() {
   const startUrl = process.env.ELECTRON_START_URL || url.format({
@@ -13,7 +19,7 @@ function createWindow() {
     slashes: true,
   })
 
-  win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     autoHideMenuBar: true,
@@ -23,22 +29,18 @@ function createWindow() {
     }
   })
 
-  win.loadURL(startUrl)
+  mainWindow.loadURL(startUrl)
 
-  win.once('ready-to-show', () => {
-    win.show()
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
   })
 }
 
-function toggleDevTools() {
-  win.webContents.toggleDevTools()
-}
-
-function createShortcuts() {
-  globalShortcut.register('CmdOrCtrl+J', toggleDevTools)
-}
-
-app.whenReady().then(createWindow).then(createShortcuts)
+app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -47,7 +49,16 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
+  if (mainWindow === null) {
     createWindow()
+  }
+})
+
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
+    mainWindow.focus()
   }
 })

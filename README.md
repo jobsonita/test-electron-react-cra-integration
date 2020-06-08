@@ -184,3 +184,74 @@ You should see a window (with window decorations and menus according to your OS)
 You can also test the build scripts, but we'll make modifications to the structure of the project in the next steps, so keep reading for now.
 
 If you execute `yarn start-electron` in multiple terminals, it should open multiple instances of the app.
+
+In order to limit the app to a single instance, we modify main.js to have the following contents (btw, I'll remove the hotkey for dev tools here, you can still access it through the window menus):
+
+```js
+const { app, BrowserWindow } = require('electron')
+
+const path = require('path')
+const url = require('url')
+
+/** @type {BrowserWindow} */
+let mainWindow
+
+const singleInstanceLock = app.requestSingleInstanceLock()
+
+if (!singleInstanceLock) {
+  app.quit()
+}
+
+function createWindow() {
+  const startUrl = process.env.ELECTRON_START_URL || url.format({
+    pathname: path.join(__dirname, '../index.html'),
+    protocol: 'file:',
+    slashes: true,
+  })
+
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    autoHideMenuBar: true,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+    }
+  })
+
+  mainWindow.loadURL(startUrl)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+}
+
+app.whenReady().then(createWindow)
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow()
+  }
+})
+
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
+    mainWindow.focus()
+  }
+})
+```
+
+Now, even if you run `yarn start-electron` in multiple terminals, all they'll do is give focus to the first instance.
