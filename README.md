@@ -255,3 +255,181 @@ app.on('second-instance', () => {
 ```
 
 Now, even if you run `yarn start-electron` in multiple terminals, all they'll do is give focus to the first instance.
+
+The next step is to build and package the app. But in order to verify that things work as expected, let's reorganize the react structure a bit and add some communication between the apps.
+
+First, let's move App files (App.tsx, App.css, App.test.tsx and logo.svg) one level down, inside the folder `src/react`. This isn't strictly required, but will keep our app better organized.
+
+We then modify `index.tsx` to point to the new location of `App.tsx`:
+
+```tsx
+import App from './react/App';
+```
+
+Next, create the files `src/shared/constants.js` and `electron/preload.js` with the following contents:
+
+`src/shared/constants.js`
+```js
+module.exports = {
+  channels: {
+    APP_INFO: 'app_info'
+  }
+}
+```
+
+`electron/preload.js`
+```js
+const { ipcRenderer } = require('electron')
+window.ipcRenderer = ipcRenderer
+```
+
+If you're transpiling electron through tsc, you can use the ts extension and import-export syntax instead.
+
+We are going to make use of electron's preload to make ipcRenderer available to our react application. This will allow our react and electron apps to communicate through events and listeners.
+
+Modify `electron/main.js` as follows:
+
+```js
+const { app, BrowserWindow, ipcMain } = require('electron')
+
+const { channels } = require('../src/shared/constants')
+
+const path = require('path')
+const url = require('url')
+
+/** @type {BrowserWindow} */
+let mainWindow
+
+const singleInstanceLock = app.requestSingleInstanceLock()
+
+if (!singleInstanceLock) {
+  app.quit()
+}
+
+function createWindow() {
+  const startUrl = process.env.ELECTRON_START_URL || url.format({
+    pathname: path.join(__dirname, '../index.html'),
+    protocol: 'file:',
+    slashes: true,
+  })
+
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    autoHideMenuBar: true,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  mainWindow.loadURL(startUrl)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+}
+
+app.whenReady().then(createWindow)
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow()
+  }
+})
+
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
+    mainWindow.focus()
+  }
+})
+
+ipcMain.on(channels.APP_INFO, (event) => {
+  event.sender.send(channels.APP_INFO, {
+    appName: app.getName(),
+    appVersion: app.getVersion()
+  })
+})
+```
+
+Next, in order to inform our react app that there's an ipcRenderer variable in our window global variable, we modify `react-app-env.d.ts` as follows:
+
+```ts
+/// <reference types="react-scripts" />
+
+import { IpcRenderer } from 'electron'
+
+declare global {
+  interface Window {
+    ipcRenderer: IpcRenderer
+  }
+}
+```
+
+Now, we can make our react app request the information and register a listener to write the received information to the console:
+
+```tsx
+import React, { useEffect } from 'react';
+
+import { channels } from '../shared/constants'
+
+import logo from './logo.svg';
+import './App.css';
+
+const { ipcRenderer } = window
+
+function App() {
+  useEffect(() => {
+    ipcRenderer.send(channels.APP_INFO);
+    ipcRenderer.on(channels.APP_INFO, (event, data) => {
+      const { appName, appVersion } = data;
+      ipcRenderer.removeAllListeners(channels.APP_INFO);
+      console.log(appName, appVersion);
+    });
+  }, [])
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.tsx</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+
+If we execute `yarn start` and `yarn start-electron` and open the dev tools (through the menu, since we removed the hotkey), the console should say `test-electron-react-cra-integration 0.1.0`.
+
+We then have to fix our `build-electron` script to make sure electron still has access to files in `src/shared` when it is copied to the build folder:
+
+`package.json`
+```json
+    "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build",
+```

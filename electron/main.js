@@ -1,4 +1,6 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
+
+const { channels } = require('../src/shared/constants')
 
 const path = require('path')
 const url = require('url')
@@ -26,6 +28,7 @@ function createWindow() {
     show: false,
     webPreferences: {
       nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   })
 
@@ -61,4 +64,11 @@ app.on('second-instance', () => {
     }
     mainWindow.focus()
   }
+})
+
+ipcMain.on(channels.APP_INFO, (event) => {
+  event.sender.send(channels.APP_INFO, {
+    appName: app.getName(),
+    appVersion: app.getVersion()
+  })
 })

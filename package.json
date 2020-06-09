@@ -20,7 +20,7 @@
     "start": "cross-env BROWSER=none react-scripts start",
     "start-electron": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
     "build": "react-scripts build",
-    "build-electron": "copyfiles --all \"electron/**/*\" build"
+    "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build"
   },
   "eslintConfig": {
     "extends": "react-app"
