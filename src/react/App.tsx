@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 
-import { channels } from '../shared/constants'
+import { channels } from '../shared/constants';
 
 import logo from './logo.svg';
 import './App.css';
 
-const { ipcRenderer } = window
+const { ipcRenderer } = window;
 
-function App() {
+const App: React.FC = () => {
   useEffect(() => {
     ipcRenderer.send(channels.APP_INFO);
     ipcRenderer.on(channels.APP_INFO, (event, data) => {
@@ -15,15 +15,13 @@ function App() {
       ipcRenderer.removeAllListeners(channels.APP_INFO);
       console.log(appName, appVersion);
     });
-  }, [])
+  }, []);
 
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <p>Edit src/App.tsx and save to reload.</p>
         <a
           className="App-link"
           href="https://reactjs.org"
@@ -35,6 +33,6 @@ function App() {
       </header>
     </div>
   );
-}
+};
 
 export default App;

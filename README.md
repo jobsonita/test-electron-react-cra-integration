@@ -36,14 +36,19 @@ yarn start-electron
 
 With a terminal open at the root of the project, run:
 
-`Unix`:
+`Mac`:
 ```
-yarn package
+yarn package-mac
 ```
 
 `Windows`:
 ```
-yarn package-win
+yarn package-windows
+```
+
+`Linux`:
+```
+yarn package-linux
 ```
 
 Open the generated dist folder and look for the installer for your system (.exe for Windows, .deb for Linux/Ubuntu, .dmg for MacOS).
@@ -511,3 +516,8 @@ yarn-error.log*
 ```
 
 Now, just install your app and run it. It'll also create an uninstaller that you can use through your system's control panel.
+
+After performing all the previous steps, you can now take over the development of the app however you like.
+If you find out you don't need to communicate between react and electron, you can remove the parts related to ipcMain/ipcRenderer.
+
+Just as an example, I'll add eslint and prettier for the react part of the app.
