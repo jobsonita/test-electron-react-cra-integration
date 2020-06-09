@@ -78,7 +78,7 @@ Test the project in your browser to see how it looks like:
 yarn start
 ```
 
-At this point, you can change the React app as you'd do normally, adding pages and routes. You can also configure eslint, prettier or other packages that help maintain your code clean and organized. I'll leave this step for later, as an added bonus, and focus on the integration with electron.
+At this point, you can change the React app as you'd do normally, adding pages and routes. You can also configure eslint, prettier or other packages that help maintain your code clean and organized. I'll leave this step for later, as an added bonus, and focus on the integration with electron. --[commit](https://github.com/jobsonita/test-electron-react-cra-integration/commit/0613d6b4b241d0fc12bc5568caed7d87b90a5f34)--
 
 For ease of use with multiple platforms, we'll be using cross-env and copyfiles:
 
@@ -190,7 +190,7 @@ You can also test the build scripts, but we'll make modifications to the structu
 
 If you execute `yarn start-electron` in multiple terminals, it should open multiple instances of the app.
 
-In order to limit the app to a single instance, we modify main.js to have the following contents (btw, I'll remove the hotkey for dev tools here, you can still access it through the window menus):
+In order to limit the app to a single instance, we modify main.js to have the following contents (btw, I'll remove the hotkey for dev tools here, you can still access it through the window menus): --[commit](https://github.com/jobsonita/test-electron-react-cra-integration/commit/b837aa5dc5dae3373c836195c50ec2911fe1fdf6)--
 
 ```js
 const { app, BrowserWindow } = require('electron')
@@ -261,7 +261,7 @@ app.on('second-instance', () => {
 
 Now, even if you run `yarn start-electron` in multiple terminals, all they'll do is give focus to the first instance.
 
-The next step is to build and package the app. But in order to verify that things work as expected, let's reorganize the react structure a bit and add some communication between the apps.
+The next step is to build and package the app. But in order to verify that things work as expected, let's reorganize the react structure a bit and add some communication between the apps. --[commit](https://github.com/jobsonita/test-electron-react-cra-integration/commit/9979b00aabb97904284e7ae189c1393964d7fad1)--
 
 First, let's move App files (App.tsx, App.css, App.test.tsx and logo.svg) one level down, inside the folder `src/react`. This isn't strictly required, but will keep our app better organized.
 
@@ -439,7 +439,7 @@ We then have to fix our `build-electron` script to make sure electron still has 
     "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build",
 ```
 
-Finally, we can build and package everything with the help of `electron-builder`.
+Finally, we can build and package everything with the help of `electron-builder`. --[commit](https://github.com/jobsonita/test-electron-react-cra-integration/commit/4779a78dbd8eed7fc4cdf7bae4526e7dade9ee28)--
 
 ```
 yarn add -D electron-builder
@@ -520,4 +520,4 @@ Now, just install your app and run it. It'll also create an uninstaller that you
 After performing all the previous steps, you can now take over the development of the app however you like.
 If you find out you don't need to communicate between react and electron, you can remove the parts related to ipcMain/ipcRenderer.
 
-Just as an example, I'll add eslint and prettier for the react part of the app.
+Just as an example, I'll add eslint and prettier for the react part of the app. [Here's the commit](https://github.com/jobsonita/test-electron-react-cra-integration/commit/de57a237a079276356c6d6762ea2eeed8141a8cd) with all the changes (and automatically linted src/index.tsx and sxr/react/App.tsx).
