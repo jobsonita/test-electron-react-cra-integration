@@ -433,3 +433,81 @@ We then have to fix our `build-electron` script to make sure electron still has 
 ```json
     "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build",
 ```
+
+Finally, we can build and package everything with the help of `electron-builder`.
+
+```
+yarn add -D electron-builder
+```
+
+We update our `package.json` with new `package` scripts and a `build` field that is used by electron-builder. We also add a few fields that help identify our app and locate some files:
+
+```json
+  "productName": "My Product Name",
+  "author": {
+    "name": "My Company Name",
+    "email": "me@my-company.com"
+  },
+  "description": "My product description",
+  "main": "electron/main.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "cross-env BROWSER=none react-scripts start",
+    "start-electron": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
+    "build": "react-scripts build",
+    "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build",
+    "package-windows": "yarn build && yarn build-electron && electron-builder build --win -c.extraMetadata.main=build/electron/main.js --publish never",
+    "package-linux": "yarn build && yarn build-electron && electron-builder build --linux -c.extraMetadata.main=build/electron/main.js --publish never",
+    "package-mac": "yarn build && yarn build-electron && electron-builder build --mac -c.extraMetadata.main=build/electron/main.js --publish never"
+  },
+  "build": {
+    "appId": "com.my-company-name.my-electron-app-name",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "publish": {
+      "provider": "github",
+      "repo": "test-electron-react-cra-integration",
+      "owner": "jobsonita"
+    }
+  },
+```
+
+Then, we run our script:
+
+```
+yarn package-<platform>
+```
+
+Note: we can only build the Mac installer from Mac. Also, `package-linux` can fail on some Windows versions/environment configurations.
+
+A `dist` folder will be generated containing the installer. We can add it to our `.gitignore` in order to avoid uploading the installers to the version control (they're quite big, it's better to upload them to some cdn system and link to it).
+
+`.gitignore`
+```
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+```
+
+Now, just install your app and run it. It'll also create an uninstaller that you can use through your system's control panel.

@@ -2,7 +2,14 @@
   "name": "test-electron-react-cra-integration",
   "version": "0.1.0",
   "private": true,
+  "productName": "My Product Name",
+  "author": {
+    "name": "My Company Name",
+    "email": "me@my-company.com"
+  },
+  "description": "My product description",
   "main": "electron/main.js",
+  "homepage": "./",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -20,7 +27,22 @@
     "start": "cross-env BROWSER=none react-scripts start",
     "start-electron": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
     "build": "react-scripts build",
-    "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build"
+    "build-electron": "copyfiles --all \"electron/**/*\" \"src/shared/**/*\" build",
+    "package-windows": "yarn build && yarn build-electron && electron-builder build --win -c.extraMetadata.main=build/electron/main.js --publish never",
+    "package-linux": "yarn build && yarn build-electron && electron-builder build --linux -c.extraMetadata.main=build/electron/main.js --publish never",
+    "package-mac": "yarn build && yarn build-electron && electron-builder build --mac -c.extraMetadata.main=build/electron/main.js --publish never"
+  },
+  "build": {
+    "appId": "com.my-company-name.my-electron-app-name",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "publish": {
+      "provider": "github",
+      "repo": "test-electron-react-cra-integration",
+      "owner": "jobsonita"
+    }
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -40,6 +62,7 @@
   "devDependencies": {
     "copyfiles": "^2.3.0",
     "cross-env": "^7.0.2",
-    "electron": "^9.0.3"
+    "electron": "^9.0.3",
+    "electron-builder": "^22.7.0"
   }
 }
